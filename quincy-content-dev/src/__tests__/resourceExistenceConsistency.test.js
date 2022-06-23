@@ -66,32 +66,38 @@ describe("Test-Suite file Existence Consistency Check", () => {
         const folder = "img";
         checkFile(parentDir, flyer["src"], folder);
       }
-
       const startVoiceOver = aFile.segments[segmentId].startVoiceOver;
       if (startVoiceOver && startVoiceOver["src"]) {
         const folder = "voice";
         checkFile(parentDir, startVoiceOver["src"], folder);
       }
-
       const listenAudioCue = aFile.segments[segmentId].listenAudioCue;
       if (listenAudioCue && listenAudioCue["src"]) {
         const folder = "audio";
         checkFile(parentDir, listenAudioCue["src"], folder);
       }
-
+      const playAudioCue = aFile.segments[segmentId].playAudioCue;
+      if (playAudioCue && playAudioCue["src"]) {
+        const folder = "audio";
+        checkFile(parentDir, playAudioCue["src"], folder);
+      }
+      const backingTrack = aFile.segments[segmentId].backingTrack;
+      if (backingTrack && backingTrack["src"]) {
+        const folder = "audio";
+        checkFile(parentDir, backingTrack["src"], folder);
+      }
       const handvideo = aFile.segments[segmentId].handvideo;
       if (handvideo && handvideo["src"]) {
         const folder = "video";
         checkFile(parentDir, handvideo["src"], folder);
       }
-
       const expectation = aFile.segments[segmentId].expectation;
       if (expectation && expectation["src"]) {
         const folder = "expect";
         checkFile(parentDir, expectation["src"], folder);
       }
     }
-
+    // Final check to make the test fail if a subtest has errors
     if (hasFailure) {
       throw Error(`File ${file} has errors!`);
     } else {
