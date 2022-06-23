@@ -3,10 +3,9 @@ const glob = require("fast-glob");
 const path = require("path");
 const yaml = require("js-yaml");
 
-function checkFile(parentDir, srcPath, folder) {
-  console.log(`Parent dir: ${parentDir}`);
-  console.log(`src: ${srcPath}`);
+let hasFailure = false;
 
+function checkFile(parentDir, srcPath, folder) {
   let file;
   if (srcPath.startsWith("/l/")) {
     // drop prefix
@@ -26,26 +25,18 @@ function checkFile(parentDir, srcPath, folder) {
     file = `${parentDir}/${folder}${
       dir && dir !== "." ? `/${dir}` : ""
     }/en/${name}`;
+  } else if (srcPath.startsWith("/")) {
+    // prepare path to check
+    file = `src/content/shared/${folder}${srcPath}`;
   } else {
     // prepare path to check
     file = `${parentDir}/${folder}/${srcPath}`;
   }
-  //Final Check
-  function checkIfFileExists(file) {
-    console.log(`Path of file to check: ${file}`);
-    try {
-      if (fs.existsSync(file)) {
-        console.log("File Exists");
-        return true;
-      }
-    } catch (err) {
-      console.error(err);
-    }
-    console.log("File Doesn't Exists");
-    return false;
+  //Check file existence
+  if (!fs.existsSync(file)) {
+    hasFailure = true;
+    console.error(`File ${file} does not exist`);
   }
-  // checkIfFileExists(file);
-  checkIfFileExists(file);
 }
 
 describe("Test-Suite file Existence Consistency Check", () => {
@@ -63,43 +54,48 @@ describe("Test-Suite file Existence Consistency Check", () => {
     }
   }
 
-  test.each(activityFiles)("Resource Existence check for %s", (file) => {
+  test.each(activityFiles)("Resource existence check for %s", (file) => {
     const aFile = yaml.load(fs.readFileSync(file, "utf8"));
     const parentDir = path.dirname(file);
 
+    hasFailure = false;
+
     for (let { segmentId } of aFile.taskSequence) {
       const flyer = aFile.segments[segmentId].flyer;
-      const startVoiceOver = aFile.segments[segmentId].startVoiceOver;
-      const listenAudioCue = aFile.segments[segmentId].listenAudioCue;
-      const playAudioCue = aFile.segments[segmentId].playAudioCue;
-      const backingTrack = aFile.segments[segmentId].backingTrack;
-      const handvideo = aFile.segments[segmentId].handvideo;
-      const expectation = aFile.segments[segmentId].expectation;
       if (flyer && flyer["src"]) {
         const folder = "img";
         checkFile(parentDir, flyer["src"], folder);
       }
+
+      const startVoiceOver = aFile.segments[segmentId].startVoiceOver;
       if (startVoiceOver && startVoiceOver["src"]) {
         const folder = "voice";
         checkFile(parentDir, startVoiceOver["src"], folder);
       }
-      if (
-        (listenAudioCue && listenAudioCue["src"]) ||
-        (playAudioCue && playAudioCue["src"]) ||
-        (backingTrack && backingTrack["src"])
-      ) {
+
+      const listenAudioCue = aFile.segments[segmentId].listenAudioCue;
+      if (listenAudioCue && listenAudioCue["src"]) {
         const folder = "audio";
         checkFile(parentDir, listenAudioCue["src"], folder);
       }
+
+      const handvideo = aFile.segments[segmentId].handvideo;
       if (handvideo && handvideo["src"]) {
         const folder = "video";
         checkFile(parentDir, handvideo["src"], folder);
       }
+
+      const expectation = aFile.segments[segmentId].expectation;
       if (expectation && expectation["src"]) {
         const folder = "expect";
         checkFile(parentDir, expectation["src"], folder);
       }
     }
-    expect(fs.existsSync(file)).toBe(true);
+
+    if (hasFailure) {
+      throw Error(`File ${file} has errors!`);
+    } else {
+      console.log(`File ${file} has no errors.`);
+    }
   });
 });
