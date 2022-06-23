@@ -9,6 +9,8 @@ _The test is not supposed to comport errors > if it does it will fail_
 
 ## RESULTS OF THE TEST :
 
+**The Test Fails**
+
 - No errors in Lesson 1.
 - 7 Files missing In Lesson 2 :
   - reminder_note_duration.aifc
