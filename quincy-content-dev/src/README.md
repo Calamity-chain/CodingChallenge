@@ -7,7 +7,23 @@ _The test is not supposed to comport errors > if it does it will fail_
 - Then we sort the yml files into the different corresponding folders categories and run the CheckFiles to check their existence.
 - A final check is implemented to make the whole Test Suite fail if one of the subtests fails, with Error message to aknowledge which yml Files contains failures.
 
-## RESULTS OF THE TEST :
+### Installation
+
+The npm installation and test running was tested with Node v14, NPM v6. Slightly higher versions should work, too.
+
+Make sure to install jest and glob :
+
+```
+npm install jest --global
+```
+
+```
+npm install --save glob
+```
+
+Note that there is already a library provided to parse YML files.
+
+### RESULTS OF THE TEST :
 
 **The Test Fails**
 
